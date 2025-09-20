@@ -1,76 +1,64 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { onMounted, computed } from 'vue'
+import { useRoute, RouterView } from 'vue-router'
+import Sidebar from './components/common/Sidebar.vue'
+import Footer from './components/common/Footer.vue'
+import Header from './components/common/Header.vue'
+
+import { useAuthStore } from './api/auth'
+import api from './api/axios'
+
+
+const authStore = useAuthStore()
+const route = useRoute()
+
+const layout = computed(() => route.meta.layout || 'DefaultLayout')
+
+onMounted(async () => {
+
+  // Access Token이 스토어에 없는 경우에만 재발급을 시도합니다.
+ authStore.initialize();
+});
+
 </script>
 
 <template>
-  <header>
+  <div v-if="layout === 'DefaultLayout'" class="container">
+    <header class="header-container">
+      <Header />
+    </header>
+    <div class="app-layout">
+      <Sidebar />
+      <main class="main-content">
+        <RouterView />
+      </main>
+    </div>
+    <footer class="footer-container">
+      <Footer />
+    </footer>
+  </div>
 
-  </header>
-
-  <RouterView />
+  <div v-else>
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+@import '@/assets/main.css';
+
+.app-layout {
+  display: flex;
+  padding-top: 80px;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.main-content {
+  flex-grow: 1;
+  padding: 32px;
+  background-color: var(--background-color);
 }
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.header-container {
+  transition: height 0.5s ease-in-out;
 }
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.footer-container {
+  min-height: 300px;
 }
 </style>

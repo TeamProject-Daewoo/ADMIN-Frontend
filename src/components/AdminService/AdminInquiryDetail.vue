@@ -109,7 +109,7 @@ const downloadFile = (fileId) => {
   if (!inquiry.value) return;
 
   const inquiryId = inquiry.value.id;
-  const url = `http://localhost:8889/admin/inquiries/${inquiryId}/download/${fileId}`;
+  const url = `${import.meta.env.VITE_BACK_ADMIN_URL}/admin/inquiries/${inquiryId}/download/${fileId}`;
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', ''); // 파일명은 서버가 응답 헤더로 지정함
@@ -122,8 +122,8 @@ const downloadFile = (fileId) => {
 const fullFileUrl = (path) => {
   if (!path) return '#';
   return path.startsWith('/')
-    ? `http://localhost:8889${path}`
-    : `http://localhost:8889/${path}`;
+    ? `${import.meta.env.VITE_BACK_ADMIN_URL}/${path}`
+    : `${import.meta.env.VITE_BACK_ADMIN_URL}/${path}`;
 };
   
 </script>

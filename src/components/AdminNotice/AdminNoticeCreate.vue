@@ -63,7 +63,7 @@ const submitNotice = async () => {
   isError.value = false;
 
   try {
-    await axios.post("http://localhost:8889/api/admin/notices", {
+    await axios.post(`${import.meta.env.VITE_BACK_ADMIN_URL}/api/admin/notices`, {
       category: form.category,
       title: form.title,
       content: form.content,
