@@ -9,6 +9,7 @@
       <button :class="{ active: selectedCategory === 'event' }" @click="selectedCategory = 'event'; fetchNoticesPaged(0)">이벤트</button>
 
       <input type="text" v-model="searchTerm" placeholder="제목" @input="fetchNoticesPaged(0)" />
+      <button class="btn-create" @click="goToCreate">글쓰기</button>
     </div>
 
     <ul class="notice-items">
@@ -54,6 +55,11 @@ const searchTerm = ref('');
 const totalPages = ref(0);
 const currentPage = ref(0);
 const pageSize = 10;
+
+const goToCreate = () => {
+  // 라우터에 설정된 이름('NoticeCreate')으로 이동
+  router.push({ name: 'NoticeCreate' });
+};
 
 // 필터링된 데이터 (카테고리와 제목 검색 필터링)
 const filteredNotices = computed(() => {
@@ -214,8 +220,12 @@ h2 {
 
 .title {
   flex: 1;
+  color: #333; /* 제목 색상 변경 */
+}
+.title:hover {
   color: #42b983;
 }
+
 
 .date {
   font-size: 0.85rem;
@@ -247,4 +257,28 @@ h2 {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* ===== [추가] 오른쪽 액션 영역 스타일 ===== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 검색창과 버튼 사이 간격 */
+}
+
+.actions input {
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 200px;
+}
+
+/* ===== [추가] 글쓰기 버튼 스타일 ===== */
+.btn-create {
+  background-color: #42b983 !important; /* important를 사용하여 다른 버튼 스타일 덮어쓰기 */
+  color: white;
+}
+.btn-create:hover {
+  background-color: #36a473 !important;
+}
+
 </style>

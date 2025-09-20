@@ -7,7 +7,7 @@
 
     <nav class="sidebar-nav">
       <RouterLink to="/dashboard" class="nav-item">대시보드</RouterLink>
-      <RouterLink to="/" class="nav-item">사업자 관리</RouterLink>
+      <RouterLink to="/admin/approvelist" class="nav-item">사업자 관리</RouterLink>
       <RouterLink to="/admin/inquiries" class="nav-item">문의 목록</RouterLink>
       <RouterLink to="/admin/notices" class="nav-item">공지 사항</RouterLink>
     </nav>

@@ -6,7 +6,6 @@ import Footer from './components/common/Footer.vue'
 import Header from './components/common/Header.vue'
 
 import { useAuthStore } from './api/auth'
-import api from './api/axios'
 
 
 const authStore = useAuthStore()
@@ -16,7 +15,6 @@ const layout = computed(() => route.meta.layout || 'DefaultLayout')
 
 onMounted(async () => {
 
-  // Access Token이 스토어에 없는 경우에만 재발급을 시도합니다.
  authStore.initialize();
 });
 
