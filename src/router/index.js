@@ -19,7 +19,10 @@ const router = createRouter({
     { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true }},
     { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true } },
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true } },
-    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } }
+    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
+    { path: '/admin/coupons', name: 'CouponList', component: () => import('@/components/coupon/CouponList.vue'), meta: { requiresAuth: true } },
+    { path: '/admin/coupons/:id', name: 'CouponForm', component: () => import('@/components/coupon/CouponForm.vue'), props: true, meta: { requiresAuth: true } },
+
   ],
 })
 
