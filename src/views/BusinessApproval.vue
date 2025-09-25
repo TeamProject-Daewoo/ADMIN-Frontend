@@ -128,7 +128,7 @@ const handleApprove = async (username) => {
 const handleReject = async (username) => {
   if (!confirm("거절 처리하시겠습니까?")) return;
   try {
-    await api.patch(`/api/admin/business-users/${username}/reject`);
+    await api.patch(`/api/admin/business-users/${username}/to-rejected`);
     updateUserStatus(username, 'REJECTED');
     alert("거절 처리되었습니다.");
   } catch (error) { alert("거절 실패"); }
