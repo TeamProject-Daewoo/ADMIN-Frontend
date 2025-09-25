@@ -6,6 +6,7 @@ import DashboardView from '@/views/DashboardView.vue'
 import LoginView from '@/views/LoginView.vue'
 import MainLandingPage from '@/views/MainLandingPage.vue'
 import ApproveList from '@/views/BusinessApproval.vue'
+import ReviewList from '@/components/review/ReviewList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,7 @@ const router = createRouter({
     { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true } },
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true } },
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
+    { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true }},
 
   ],
 })
