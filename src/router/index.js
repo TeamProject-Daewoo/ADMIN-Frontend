@@ -7,6 +7,7 @@ import LoginView from '@/views/LoginView.vue'
 import MainLandingPage from '@/views/MainLandingPage.vue'
 import ApproveList from '@/views/BusinessApproval.vue'
 import errorPage from '@/components/common/errorPage.vue';
+import Accounts from '@/components/common/errorPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,7 +21,8 @@ const router = createRouter({
     { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true } },
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true } },
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
-    {path: '/errorPage', name: 'errorPage', component: errorPage},
+    { path: '/errorPage', name: 'errorPage', component: errorPage},
+    { path: '/admin/accounts', name: 'Accounts', component: Accounts , meta: { requiresAuth: true } },
   ],
 })
 

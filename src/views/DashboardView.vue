@@ -2,7 +2,7 @@
   <div class="dashboard">
     <h1>대시보드</h1>
     <div class="headline-divider"></div>
-    
+    ㅎㅇ
   </div>
 </template>
 
