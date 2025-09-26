@@ -7,25 +7,44 @@
       <form @submit.prevent="handleCreate">
         <div class="input-group">
           <label for="name">관리자 이름</label>
-          <input type="text" id="name" v-model="formData.name" placeholder="이름 입력" required />
+          <input 
+            type="text" 
+            id="name" 
+            v-model="formData.name" 
+            placeholder="이름 입력 (7자 이하, 특수문자/공백 제외)" 
+            required 
+            maxlength="7" 
+            @input="handleInput"
+          />
+          <p v-if="nameError" class="validation-message error-text">{{ nameError }}</p>
         </div>
         <div class="input-group">
           <label for="adminId">아이디</label>
           <div class="input-with-button">
-            <input type="text" id="adminId" v-model="formData.adminId" placeholder="아이디 입력" :disabled="isAdminIdChecked" required />
-            <button type="button" @click="checkAdminId" :disabled="isAdminIdChecked || !formData.adminId" class="check-button">
+            <input 
+              type="text" 
+              id="adminId" 
+              v-model="formData.username" 
+              placeholder="아이디 입력 (7~20자, 특수문자/공백 제외)" 
+              :disabled="isAdminIdChecked" 
+              required 
+              maxlength="19" 
+              @input="handleInput"
+            />
+            <button type="button" @click="checkAdminId" :disabled="isAdminIdChecked || !formData.username || !!usernameError" class="check-button">
               {{ isAdminIdChecked ? '확인완료' : '중복확인' }}
             </button>
           </div>
+          <p v-if="usernameError" class="validation-message error-text">{{ usernameError }}</p>
           <p v-if="idMessage" :class="idMessageClass" class="validation-message">{{ idMessage }}</p>
         </div>
         <div class="input-group">
           <label for="password">비밀번호</label>
-          <input type="password" id="password" v-model="formData.password" placeholder="비밀번호 입력" required />
+          <input type="password" id="password" v-model="formData.password" placeholder="비밀번호 입력" required @input="preventSpaces"/>
         </div>
         <div class="input-group">
           <label for="confirmPassword">비밀번호 확인</label>
-          <input type="password" id="confirmPassword" v-model="formData.confirmPassword" placeholder="비밀번호 재입력" required />
+          <input type="password" id="confirmPassword" v-model="formData.confirmPassword" placeholder="비밀번호 재입력" required @input="preventSpaces"/>
           <p v-if="formData.confirmPassword" :class="passwordsMatch ? 'success-text' : 'error-text'" class="validation-message">
             {{ passwordsMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
           </p>
@@ -48,90 +67,143 @@
     </div>
   </div>
 </template>
-  
-  <script setup>
-  import { ref, reactive, computed, watch } from 'vue';
-  import { useRouter } from 'vue-router';
-  import api from '@/api/axios';
-  
-  const router = useRouter();
-  const formData = reactive({ name: '', adminId: '', password: '', confirmPassword: '', role: null });
-  const selectedRoles = reactive({ cs: false, biz: false });
-  
-  const isAdminIdChecked = ref(false);
-  const idMessage = ref('');
-  const idMessageClass = ref('');
-  
-  watch(() => formData.adminId, () => {
-    isAdminIdChecked.value = false;
-    idMessage.value = '';
-  });
-  
-  // 권한 체크박스 중 하나만 선택되도록 처리
-  watch(() => selectedRoles.cs, (isCs) => {
-    if (isCs) {
-      selectedRoles.biz = false;
-      formData.role = 'ADMIN_CS';
-    } else if (!selectedRoles.biz) {
-      formData.role = null;
-    }
-  });
-  watch(() => selectedRoles.biz, (isBiz) => {
-    if (isBiz) {
-      selectedRoles.cs = false;
-      formData.role = 'ADMIN_BIZ';
-    } else if (!selectedRoles.cs) {
-      formData.role = null;
-    }
-  });
-  
-  const checkAdminId = async () => {
-    try {
-      await api.post('/api/admin/check-id', { adminId: formData.adminId });
-      idMessage.value = '사용 가능한 아이디입니다.';
-      idMessageClass.value = 'success-text';
-      isAdminIdChecked.value = true;
-    } catch (error) {
-      idMessage.value = '이미 사용 중인 아이디입니다.';
-      idMessageClass.value = 'error-text';
-    }
-  };
-  
-  const passwordsMatch = computed(() => formData.password && formData.password === formData.confirmPassword);
-  
-  const isFormValid = computed(() => {
-    return isAdminIdChecked.value &&
-           passwordsMatch.value &&
-           formData.name &&
-           formData.role;
-  });
+ 
+<script setup>
+import { ref, reactive, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '@/api/axios';
+ 
+const router = useRouter();
+// ✨ 변경된 부분: adminId를 username으로 수정하여 템플릿과 일치시킴
+const formData = reactive({ name: '', username: '', password: '', confirmPassword: '', role: null });
+const selectedRoles = reactive({ cs: false, biz: false });
+ 
+const isAdminIdChecked = ref(false);
+const idMessage = ref('');
+const idMessageClass = ref('');
 
-  const resetForm = () => {
+// ✨ 추가된 부분: 이름과 아이디 유효성 검사를 위한 상태
+const nameError = ref('');
+const usernameError = ref('');
+const isNameValid = ref(false);
+const isUsernameValid = ref(false);
+
+// ✨ 추가된 부분: 입력 시 공백 및 허용되지 않는 특수문자 제거
+const handleInput = (event) => {
+  // 영어, 숫자, 한글만 허용 (공백 및 대부분의 특수문자 제거)
+  event.target.value = event.target.value.replace(/[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
+};
+
+// ✨ 추가된 부분: 비밀번호 필드의 공백 입력을 방지하는 함수
+const preventSpaces = (event) => {
+  event.target.value = event.target.value.replace(/\s/g, '');
+};
+
+// ✨ 추가된 부분: 이름 유효성 검사 watch
+watch(() => formData.name, (newName) => {
+  if (newName && newName.length > 0) {
+    isNameValid.value = true;
+    nameError.value = ''; // 이름이 있으면 에러 메시지 없음
+  } else {
+    isNameValid.value = false;
+  }
+  // maxlength 속성이 7자로 제한하지만, 추가적인 스크립트 방어
+  if (newName && newName.length > 7) {
+    formData.name = newName.substring(0, 7);
+  }
+});
+
+// ✨ 변경된 부분: 아이디 유효성 검사 watch 로직 강화
+watch(() => formData.username, (newUsername) => {
+  isAdminIdChecked.value = false;
+  idMessage.value = '';
+
+  if (!newUsername) {
+    usernameError.value = '';
+    isUsernameValid.value = false;
+  } else if (newUsername.length < 7 || newUsername.length > 20) {
+    usernameError.value = '아이디는 7자 이상, 20자 이하로 입력해주세요.';
+    isUsernameValid.value = false;
+  } else {
+    usernameError.value = '';
+    isUsernameValid.value = true;
+  }
+});
+ 
+// 권한 체크박스 중 하나만 선택되도록 처리
+watch(() => selectedRoles.cs, (isCs) => {
+  if (isCs) {
+    selectedRoles.biz = false;
+    formData.role = 'ADMIN_CS';
+  } else if (!selectedRoles.biz) {
+    formData.role = null;
+  }
+});
+watch(() => selectedRoles.biz, (isBiz) => {
+  if (isBiz) {
+    selectedRoles.cs = false;
+    formData.role = 'ADMIN_BIZ';
+  } else if (!selectedRoles.cs) {
+    formData.role = null;
+  }
+});
+ 
+const checkAdminId = async () => {
+  // ✨ 추가된 부분: 아이디 형식/길이가 유효하지 않으면 중복확인 실행 안 함
+  if (!isUsernameValid.value) {
+    alert('아이디 형식을 확인해주세요.');
+    return;
+  }
+  try {
+    await api.post('/api/admin/check-id', { username: formData.username });
+    idMessage.value = '사용 가능한 아이디입니다.';
+    idMessageClass.value = 'success-text';
+    isAdminIdChecked.value = true;
+  } catch (error) {
+    idMessage.value = '이미 사용 중인 아이디입니다.';
+    idMessageClass.value = 'error-text';
+  }
+};
+ 
+const passwordsMatch = computed(() => formData.password && formData.password === formData.confirmPassword);
+ 
+// ✨ 변경된 부분: isFormValid에 새로운 유효성 검사 조건 추가
+const isFormValid = computed(() => {
+  return isNameValid.value &&
+         isUsernameValid.value &&
+         isAdminIdChecked.value &&
+         passwordsMatch.value &&
+         !!formData.role; // role이 null이 아닌지 확인
+});
+
+const resetForm = () => {
   formData.name = '';
-  formData.adminId = '';
+  // ✨ 변경된 부분: adminId -> username
+  formData.username = '';
   formData.password = '';
   formData.confirmPassword = '';
   formData.role = null;
-  selectedRoles.cs = false; // 체크박스 상태도 초기화
+  selectedRoles.cs = false;
   selectedRoles.biz = false;
-  isAdminIdChecked.value = false; // 중복확인 상태도 초기화
+  isAdminIdChecked.value = false;
 };
-  
-  const handleCreate = async () => {
-    if (!isFormValid.value) {
-      alert('모든 정보를 올바르게 입력해주세요.');
-      return;
-    }
-    try {
-      await api.post('/api/admin/create', formData);
-      alert('관리자 계정이 생성되었습니다.');
-      resetForm();
-    } catch (error) {
-      alert(error.response?.data || '계정 생성에 실패했습니다.');
-    }
-  };
-  </script>
-  
+ 
+const handleCreate = async () => {
+  if (!isFormValid.value) {
+    alert('모든 정보를 올바르게 입력해주세요.');
+    return;
+  }
+  try {
+    // ✨ 변경된 부분: 서버로 보낼 데이터에 username 사용
+    const payload = { ...formData };
+    await api.post('/api/admin/create', payload);
+    alert('관리자 계정이 생성되었습니다.');
+    resetForm();
+  } catch (error) {
+    alert(error.response?.data?.message || error.response?.data || '계정 생성에 실패했습니다.');
+  }
+};
+</script>
   <style scoped>
   .admin-create-container {
     max-width: 700px;
