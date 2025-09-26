@@ -27,6 +27,7 @@ const router = createRouter({
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN','ROLE_ADMIN_BIZ'] } },
     { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] }},
     { path: '/errorPage', name: 'errorPage', component: errorPage},
+
     {
       path: '/admin/account',
       component: AdminAccountView, // 👈 2. 부모 레이아웃
@@ -45,7 +46,7 @@ const router = createRouter({
         // 👇 /admin 접속 시 자동으로 /admin/list로 이동
         { path: '', redirect: { name: 'adminList' } } 
       ]
-    }
+    },
   ],
 })
 
