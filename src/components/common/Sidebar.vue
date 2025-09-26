@@ -11,6 +11,7 @@
       <RouterLink to="/admin/inquiries" class="nav-item">문의 목록</RouterLink>
       <RouterLink to="/admin/notices" class="nav-item">공지 사항</RouterLink>
       <RouterLink to="/admin/reviews" class="nav-item">리뷰 관리</RouterLink>
+      <RouterLink to="/admin/accounts" class="nav-item">관리자 계정 관리</RouterLink>
     </nav>
   </aside>
 </template>
