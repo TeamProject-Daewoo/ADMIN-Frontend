@@ -1,61 +1,67 @@
-  import { defineStore } from 'pinia';
-  import api from '@/api/axios'; // axios 인스턴스 임포트
+import { defineStore } from 'pinia';
+import api from '@/api/axios'; // axios 인스턴스 임포트
 
- export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore('auth', {
   state: () => ({
     accessToken: null,
     loggedInUser: null, // 사용자 ID (예: 'user123')
     userName: null,     // 사용자 이름 (예: '홍길동')
-    loginType: null,    // 로그인 타입 (예: 'KAKAO')
+    role: [],          // ✨ 사용자의 역할 목록을 저장 (예: ['ROLE_SUPER_ADMIN'])
     isInitialized: false,
   }),
 
   getters: {
     isLoggedIn: (state) => !!state.accessToken,
-    isAdmin: (state) => {
-      // 역할 정보는 JWT 페이로드에 있다고 가정
-      if (!state.accessToken) return false;
-      const payload = JSON.parse(atob(state.accessToken.split('.')[1]));
-      return payload.auth?.includes('ROLE_ADMIN');
+
+    // ✨ 특정 역할을 보유했는지 확인하는 유연한 getter
+    hasRole: (state) => (requiredRole) => {
+      return state.role.includes(requiredRole);
     },
   },
   
   actions: {
-    // 토큰을 설정하고, 토큰 내부 정보로 state들을 업데이트하는 액션
+    // 👇 JWT 파싱 시 roles 정보도 함께 저장하도록 수정
     setToken(token) {
       this.accessToken = token;
       const payload = this.parseJwt(token);
       
       this.loggedInUser = payload?.sub || null;
       this.userName = payload?.name || null;
+      
+      // 'roles' 클레임(콤마로 구분된 문자열)을 배열로 변환하여 저장
+      if (payload?.role) {
+        this.role = payload.role.split(',');
+      } else {
+        this.role = [];
+      }
     },
 
-    // 사용자 정보를 받아 state들을 업데이트하는 액션
+    // 이 액션은 /api/user/me 에서 부가 정보를 가져올 때 사용되므로 그대로 둡니다.
     setUserInfo(userData) {
       if (userData) {
         this.loggedInUser = userData.username || this.loggedInUser;
         this.userName = userData.name || this.userName;
-        this.loginType = userData.loginType || null;
       }
     },
 
+    // 👇 logout 시 roles도 초기화
     logout() {
       this.accessToken = null;
       this.loggedInUser = null;
       this.userName = null;
-      this.loginType = null;
+      this.role = []; // 역할 정보 초기화
     },
     
+    // initialize 액션은 setToken을 호출하므로 자동으로 역할 정보를 처리하게 됩니다.
+    // 수정할 필요 없습니다.
     async initialize() {
       this.isInitialized = false;
       try {
         const refreshResponse = await api.post('/api/auth/refresh');
         const newAccessToken = refreshResponse.data.accessToken;
         
-        // 1. 토큰 먼저 설정 (토큰 파싱을 통해 기본 정보 업데이트)
-        this.setToken(newAccessToken);
+        this.setToken(newAccessToken); // 수정된 setToken 호출
 
-        // 2. 서버에서 최신 사용자 정보 가져와서 덮어쓰기
         const userResponse = await api.get('/api/user/me');
         this.setUserInfo(userResponse.data);
         
@@ -68,7 +74,7 @@
       }
     },
 
-    // JWT 페이로드를 안전하게 디코딩하는 헬퍼 함수
+    // JWT 파싱 함수는 그대로 사용합니다.
     parseJwt(token) {
       if (!token) return null;
       try {
