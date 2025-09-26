@@ -8,30 +8,39 @@
           {{ deletedList ? '미삭제 항목 보기' : '삭제된 항목 보기' }}
         </button>
       </div>
-      <span class="review-count">총 {{ reviewList.length }}개</span>
-      
+      <div>
+        <input class="review-input" type="text" @input="handleInput" :value="searchTerm">
+        <span class="review-count">총 {{ reviewList.length }}개의 
+          <span v-if="deletedList">삭제된 항목</span>
+          <span v-else>미삭제 항목</span>
+        </span>
+      </div>      
     </header>
 
     <div class="table-wrapper">
       <table class="review-table">
         <thead>
           <tr>
-            <th><input type="checkbox" @change="toggleSelectAll" /></th>
+            <th :class="{'hidden-column': deletedList}">
+              <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" />
+            </th>
             <th>호텔 정보</th>
             <th>작성자</th>
             <th>이메일</th>
             <th>평점</th>
             <th class="text-cell">리뷰 내용</th>
             <th>작성일</th>
-            <th>관리</th>
+            <th :class="{'hidden-column': deletedList}">관리</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="reviewList.length === 0">
-            <td colspan="8" class="no-data">표시할 리뷰가 없습니다.</td>
+            <td :colspan="deletedList ? 6 : 8" class="no-data">표시할 리뷰가 없습니다.</td>
           </tr>
           <tr v-for="review in reviewList" :key="review.reviewId">
-            <td><input type="checkbox" :value="review.reviewId" v-model="selectedReviews" /></td>
+            <td :class="{'hidden-column': deletedList}">
+              <input type="checkbox" :value="review.reviewId" v-model="selectedReviews" />
+            </td>
             <td>
               <div class="hotel-info">
                 <strong>{{ review.hotelName }}</strong>
@@ -45,7 +54,7 @@
               <span :title="review.reviewText">{{ review.reviewText }}</span>
             </td>
             <td>{{ formatDate(review.reviewDate) }}</td>
-            <td class="actions-cell">
+            <td class="actions-cell" :class="{'hidden-column': deletedList}">
               <button class="btn btn-delete" @click="deleteReview(review.reviewId)">삭제</button>
             </td>
           </tr>
@@ -61,12 +70,21 @@ import { computed, onMounted, ref } from "vue";
 
 const deletedList = ref(false);
 const reviewList = ref([]);
+const searchTerm = ref('');
 onMounted(() => {
     fetchReviews();
 })
 
+const isAllSelected = computed(() => {
+    if (reviewList.value.length === 0) {
+        return false;
+    }
+    return selectedReviews.value.length === reviewList.value.length;
+});
+
 const toggleDeletedList = () => {
   deletedList.value = !deletedList.value;
+  selectedReviews.value = [];
   fetchReviews()
 };
 
@@ -76,10 +94,19 @@ const buttonClass = computed(() => {
     : 'btn-toggle active-deleted';
 });
 
+function handleInput(event) {
+    searchTerm.value = event.target.value;
+    fetchReviews(); 
+}
+
 const fetchReviews = async () => {
-    const review = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewAll?deletedShow=${deletedList.value}`);
+    const review = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewAll`, {
+      params: {
+        deletedShow: deletedList.value,
+        searchTerm: searchTerm.value 
+      }
+    });
     reviewList.value = review.data;
-    console.log(review.data)
 }
 
 const formatDate = (dateString) => {
@@ -98,7 +125,8 @@ const deleteReview = async (id) => {
   if (confirm(`정말로 ID: ${id} 리뷰를 삭제하시겠습니까?`)) {
     alert(`ID: ${id} 리뷰가 삭제되었습니다.`);
     await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/delete/${id}`);
-  }
+    fetchReviews();
+   }
 };
 const deleteAll = async () => {
   if (selectedReviews.value.length === 0) {
@@ -108,6 +136,7 @@ const deleteAll = async () => {
   if (confirm(`정말로 선택한 항목들을 삭제하시겠습니까?`)) {
     alert(`선택한 모든 리뷰가 삭제되었습니다.`);
     await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/deleteAll`, {params: {reviews: selectedReviews.value}});
+    fetchReviews();
   } 
 }
 
@@ -142,6 +171,28 @@ const toggleSelectAll = (event) => {
   color: #111827;
 }
 
+.review-input {
+    width: 250px; 
+    height: 38px;
+    line-height: 38px;
+    padding: 0 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px;
+    /* 글꼴 및 색상 */
+    font-size: 14px;
+    color: #333;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    margin-right: 10px;
+}
+
+.review-input:focus {
+    border-color: #007bff; 
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); 
+    outline: none; 
+}
 .review-count {
   display: inline-block;
   font-size: 1rem;
@@ -170,9 +221,10 @@ const toggleSelectAll = (event) => {
 
 .review-table th, .review-table td {
   padding: 12px 16px;
-  text-align: left;
+  text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid #e5e7eb;
+
 }
 
 .review-table thead {
@@ -201,47 +253,10 @@ const toggleSelectAll = (event) => {
     width: 40px; 
 }
 
-/* 호텔 정보 (2번째 컬럼) */
-.review-table th:nth-child(2),
-.review-table td:nth-child(2) {
-    width: 15%; 
-}
-
-/* 작성자 (3번째 컬럼) */
-.review-table th:nth-child(3),
-.review-table td:nth-child(3) {
-    width: 8%; 
-}
-
-/* 이메일 (4번째 컬럼) */
-.review-table th:nth-child(4),
-.review-table td:nth-child(4) {
-    width: 15%; 
-}
-
-/* 평점 (5번째 컬럼) */
-.review-table th:nth-child(5),
-.review-table td:nth-child(5) {
-    width: 5%; 
-    text-align: center;
-}
-
-/* 리뷰 내용 (6번째 컬럼) */
-.review-table th:nth-child(6),
-.review-table td:nth-child(6) {
-    width: 30%; 
-}
-
-/* 작성일 (7번째 컬럼) */
-.review-table th:nth-child(7),
-.review-table td:nth-child(7) {
-    width: 12%; 
-}
-
 /* 관리/액션 버튼 (8번째 컬럼) */
 .review-table th:nth-child(8),
 .review-table td:nth-child(8) {
-    width: 5%; 
+    width: 8%; 
     text-align: center;
 }
 
@@ -334,5 +349,21 @@ const toggleSelectAll = (event) => {
 }
 .btn-toggle.active-not-deleted:hover { 
     background-color: #3b863d; 
+}
+
+.review-table th,
+.review-table td {
+    transition: width 0.3s ease-in-out, 
+                opacity 0.3s ease-in-out, 
+                padding 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.hidden-column {
+    width: 0 !important; 
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    opacity: 0;
 }
 </style>
