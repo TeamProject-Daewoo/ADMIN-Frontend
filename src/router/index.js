@@ -24,7 +24,7 @@ const router = createRouter({
     { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] } },
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] } },
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN','ROLE_ADMIN_BIZ'] } },
-    { path: '/errorPage', name: 'errorPage', component: errorPage},
+    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN','ROLE_ADMIN_BIZ'] } },
     {
       path: '/admin/account',
       component: AdminAccountView, // 👈 2. 부모 레이아웃
@@ -43,7 +43,7 @@ const router = createRouter({
         // 👇 /admin 접속 시 자동으로 /admin/list로 이동
         { path: '', redirect: { name: 'adminList' } } 
       ]
-    }
+    },
   ],
 })
 
