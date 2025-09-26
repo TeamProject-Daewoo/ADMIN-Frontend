@@ -2,26 +2,52 @@
   <div class="admin-container">
     <h1>리뷰 관리</h1>
     <header class="admin-header">
-      <div>
+     
+     <div v-if="currentViewMode === 'reported'">
+        <span class="btn btn-reject" @click="rejectAll">선택한 항목 모두 거절</span>
+      </div>
+      <div v-if="currentViewMode === 'deleted'">
+        <span class="btn btn-cancel" @click="deleteAll">선택한 항목 삭제 취소</span>
+      </div>  
+      <div v-else>
         <span class="btn btn-delete" @click="deleteAll">선택한 항목 모두 삭제</span>
-        <button @click="toggleDeletedList" :class="buttonClass">
-          {{ deletedList ? '미삭제 항목 보기' : '삭제된 항목 보기' }}
-        </button>
+      </div>
+      
+    </header>
+    <div class="admin-filter">
+      <div class="filter-tab">
+        <button 
+            @click="setViewMode('reported')" 
+            :class="{'active': currentViewMode === 'reported'}" 
+          >
+            신고된 리뷰
+          </button>
+          <button 
+            @click="setViewMode('all')" 
+            :class="{'active': currentViewMode === 'all'}" 
+          >
+            모든 리뷰
+          </button>
+          <button 
+            @click="setViewMode('deleted')" 
+            :class="{'active': currentViewMode === 'deleted'}" 
+          >
+            삭제된 리뷰
+          </button>
       </div>
       <div>
-        <input class="review-input" type="text" @input="handleInput" :value="searchTerm">
-        <span class="review-count">총 {{ reviewList.length }}개의 
-          <span v-if="deletedList">삭제된 항목</span>
-          <span v-else>미삭제 항목</span>
-        </span>
-      </div>      
-    </header>
-
+          <input class="review-input" type="text" @input="handleInput" :value="searchTerm" placeholder="리뷰 내용을 입력하세요">
+          <span class="review-count">총 {{ reviewList.length }}개의 
+            <span v-if="deletedList">삭제된 항목</span>
+            <span v-else>미삭제 항목</span>
+          </span>
+        </div>
+      </div>
     <div class="table-wrapper">
       <table class="review-table">
         <thead>
           <tr>
-            <th :class="{'hidden-column': deletedList}">
+            <th>
               <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" />
             </th>
             <th>호텔 정보</th>
@@ -30,7 +56,7 @@
             <th>평점</th>
             <th class="text-cell">리뷰 내용</th>
             <th>작성일</th>
-            <th :class="{'hidden-column': deletedList}">관리</th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +64,7 @@
             <td :colspan="deletedList ? 6 : 8" class="no-data">표시할 리뷰가 없습니다.</td>
           </tr>
           <tr v-for="review in reviewList" :key="review.reviewId">
-            <td :class="{'hidden-column': deletedList}">
+            <td>
               <input type="checkbox" :value="review.reviewId" v-model="selectedReviews" />
             </td>
             <td>
@@ -54,8 +80,10 @@
               <span :title="review.reviewText">{{ review.reviewText }}</span>
             </td>
             <td>{{ formatDate(review.reviewDate) }}</td>
-            <td class="actions-cell" :class="{'hidden-column': deletedList}">
-              <button class="btn btn-delete" @click="deleteReview(review.reviewId)">삭제</button>
+            <td class="actions-cell">
+              <button v-if="currentViewMode === 'reported'" class="btn btn-reject" @click="reject(review.reviewId)">거절</button>
+              <button v-if="currentViewMode === 'deleted'" class="btn btn-cancel" @click="deleteReview(review.reviewId)">삭제 취소</button>
+              <button v-else class="btn btn-delete" @click="deleteReview(review.reviewId)">삭제</button>
             </td>
           </tr>
         </tbody>
@@ -66,11 +94,22 @@
 
 <script setup>
 import axios from "@/api/axios";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const deletedList = ref(false);
 const reviewList = ref([]);
 const searchTerm = ref('');
+
+const currentViewMode = ref('reported');
+watch(currentViewMode, () => {
+    fetchReviews();
+});
+
+function setViewMode(mode) {
+    currentViewMode.value = mode;
+    deletedList.value = (currentViewMode.value === 'all') ? false : true;
+}
+
 onMounted(() => {
     fetchReviews();
 })
@@ -82,17 +121,11 @@ const isAllSelected = computed(() => {
     return selectedReviews.value.length === reviewList.value.length;
 });
 
-const toggleDeletedList = () => {
-  deletedList.value = !deletedList.value;
+const toggleDeletedList = (toggle) => {
+  deletedList.value = toggle;
   selectedReviews.value = [];
   fetchReviews()
 };
-
-const buttonClass = computed(() => {
-  return deletedList.value 
-    ? 'btn-toggle active-not-deleted' 
-    : 'btn-toggle active-deleted';
-});
 
 function handleInput(event) {
     searchTerm.value = event.target.value;
@@ -100,13 +133,24 @@ function handleInput(event) {
 }
 
 const fetchReviews = async () => {
-    const review = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewAll`, {
+  let result = '';
+    if(currentViewMode.value === 'reported') {
+      result = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewReportedAll`, {
       params: {
-        deletedShow: deletedList.value,
-        searchTerm: searchTerm.value 
+        searchTerm: searchTerm.value
       }
     });
-    reviewList.value = review.data;
+    }
+    else {
+      result = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewAll`, {
+        params: {
+          deletedShow: deletedList.value,
+          searchTerm: searchTerm.value
+        }
+      });
+    }
+
+    reviewList.value = result.data;
 }
 
 const formatDate = (dateString) => {
@@ -124,7 +168,9 @@ const formatDate = (dateString) => {
 const deleteReview = async (id) => {
   if (confirm(`정말로 ID: ${id} 리뷰를 삭제하시겠습니까?`)) {
     alert(`ID: ${id} 리뷰가 삭제되었습니다.`);
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/delete/${id}`);
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/delete/${id}`, {
+      isDelete: (currentViewMode.value === 'deleted') ? true : false
+    });
     fetchReviews();
    }
 };
@@ -135,10 +181,48 @@ const deleteAll = async () => {
   }
   if (confirm(`정말로 선택한 항목들을 삭제하시겠습니까?`)) {
     alert(`선택한 모든 리뷰가 삭제되었습니다.`);
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/deleteAll`, {params: {reviews: selectedReviews.value}});
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/deleteAll`, {
+      params: {
+        reviews: selectedReviews.value,
+        isDelete: (currentViewMode.value === 'deleted') ? false : true
+      }
+    });
     fetchReviews();
+    selectedReviews.value = [];
   } 
 }
+
+const reject = async (id) => {
+  if (confirm(`정말로 ID: ${id} 리뷰 삭제를 거절 하시겠습니까?`)) {
+    alert(`ID: ${id} 리뷰 삭제를 거절하었습니다.`);
+    await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/report/${id}`, {
+        params: {
+          isReport: false
+        }
+      }
+    );
+    fetchReviews();
+   }
+}
+const rejectAll = async () => {
+  if (selectedReviews.value.length === 0) {
+      alert("하나 이상의 삭제할 항목을 선택해주세요.");
+      return; 
+  }
+  if (confirm(`정말로 선택한 항목을 모두 거절 하시겠습니까?`)) {
+    alert(`선택한 모든 리뷰 삭제를 거절하었습니다.`);
+    await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/reportAll`, {
+        params: {
+          reviews: selectedReviews.value,
+          isReport: false
+        }
+      }
+    );
+    fetchReviews();
+    selectedReviews.value = [];
+   }
+}
+
 
 const selectedReviews = ref([]);
 const toggleSelectAll = (event) => {
@@ -147,7 +231,6 @@ const toggleSelectAll = (event) => {
   } else {
     selectedReviews.value = [];
   }
-  console.log(selectedReviews.value)
 };
 </script>
 
@@ -160,15 +243,19 @@ const toggleSelectAll = (event) => {
 
 .admin-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
+  align-items:center;
+  margin-bottom: 1.0rem;
 }
 
 .admin-header h1 {
   margin: 0;
   font-size: 1.8rem;
   color: #111827;
+}
+.admin-filter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
 .review-input {
@@ -178,6 +265,7 @@ const toggleSelectAll = (event) => {
     padding: 0 10px; 
     border: 1px solid #ccc; 
     border-radius: 4px;
+    margin-bottom: 10px;
     /* 글꼴 및 색상 */
     font-size: 14px;
     color: #333;
@@ -203,6 +291,30 @@ const toggleSelectAll = (event) => {
 }
 .review-count-container {
   text-align: right;
+}
+
+.filter-tab button {
+  padding: 8px 15px;
+  height: 100%;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  color: #555;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: -1px;
+  transition: all 0.2s ease;
+}
+.filter-tab button:hover {
+    background-color: #eee;
+    color: #333;
+}
+.filter-tab button.active {
+    background-color: #f6fff4; 
+    color: #51a750;
+    font-weight: 700;
+    z-index: 2;
 }
 
 .table-wrapper {
@@ -320,7 +432,20 @@ const toggleSelectAll = (event) => {
 .btn-delete {
   color: #dc2626;
 }
-
+.btn-reject {
+  color: #ff8128
+}
+.btn-reject:hover {
+  background-color: #feece2;
+  border-color: #fcbca5;
+}
+.btn-cancel {
+  color: #299537;
+}
+.btn-cancel:hover {
+  background-color: #e2fee5;
+  border-color: #73c883;
+}
 .btn-delete:hover {
   background-color: #fee2e2;
   border-color: #fca5a5;
@@ -332,23 +457,6 @@ const toggleSelectAll = (event) => {
   cursor: pointer;
   transition: all 0.3s;
   font-weight: bold;
-}
-
-
-.active-deleted {
-  background-color: #f44336; /* 빨간색 계열 */
-  color: white;
-}
-.btn-toggle.active-deleted:hover { 
-    background-color: #be2f2f; 
-}
-
-.active-not-deleted {
-  background-color: #4CAF50; /* 초록색 계열 */
-  color: white;
-}
-.btn-toggle.active-not-deleted:hover { 
-    background-color: #3b863d; 
 }
 
 .review-table th,
