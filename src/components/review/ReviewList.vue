@@ -61,7 +61,7 @@
         </thead>
         <tbody>
           <tr v-if="reviewList.length === 0">
-            <td :colspan="deletedList ? 6 : 8" class="no-data">표시할 리뷰가 없습니다.</td>
+            <td :colspan="8" class="no-data">표시할 리뷰가 없습니다.</td>
           </tr>
           <tr v-for="review in reviewList" :key="review.reviewId">
             <td>
@@ -95,6 +95,7 @@
 <script setup>
 import axios from "@/api/axios";
 import { computed, onMounted, ref, watch } from "vue";
+import { debounce } from 'lodash';
 
 const deletedList = ref(false);
 const reviewList = ref([]);
@@ -129,11 +130,15 @@ const toggleDeletedList = (toggle) => {
 
 function handleInput(event) {
     searchTerm.value = event.target.value;
-    fetchReviews(); 
+    debouncedSearch();
 }
+const debouncedSearch = debounce(() => {
+    fetchReviews();
+}, 100);
 
 const fetchReviews = async () => {
   let result = '';
+  console.log(searchTerm.value)
     if(currentViewMode.value === 'reported') {
       result = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewReportedAll`, {
       params: {
@@ -166,10 +171,13 @@ const formatDate = (dateString) => {
 };
 
 const deleteReview = async (id) => {
-  if (confirm(`정말로 ID: ${id} 리뷰를 삭제하시겠습니까?`)) {
-    alert(`ID: ${id} 리뷰가 삭제되었습니다.`);
+  if (confirm(`정말로 ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제를 취소 " : "리뷰를 삭제 "}하시겠습니까?`)) {
+    alert(`ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제가 취소 " : "리뷰가 삭제 "}되었습니다.`);
+    console.log((currentViewMode.value === 'deleted' ? false : true))
     await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/delete/${id}`, {
-      isDelete: (currentViewMode.value === 'deleted') ? true : false
+      params: {
+        isDelete: (currentViewMode.value === 'deleted' ? false : true)
+      }
     });
     fetchReviews();
    }
