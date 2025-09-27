@@ -138,16 +138,15 @@ const debouncedSearch = debounce(() => {
 
 const fetchReviews = async () => {
   let result = '';
-  console.log(searchTerm.value)
     if(currentViewMode.value === 'reported') {
-      result = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewReportedAll`, {
+      result = await axios.get(`/api/reviews/viewReportedAll`, {
       params: {
         searchTerm: searchTerm.value
       }
     });
     }
     else {
-      result = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/viewAll`, {
+      result = await axios.get(`/api/reviews/viewAll`, {
         params: {
           deletedShow: deletedList.value,
           searchTerm: searchTerm.value
@@ -174,7 +173,7 @@ const deleteReview = async (id) => {
   if (confirm(`정말로 ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제를 취소 " : "리뷰를 삭제 "}하시겠습니까?`)) {
     alert(`ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제가 취소 " : "리뷰가 삭제 "}되었습니다.`);
     console.log((currentViewMode.value === 'deleted' ? false : true))
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/delete/${id}`, {
+    await axios.delete(`/api/reviews/delete/${id}`, {
       params: {
         isDelete: (currentViewMode.value === 'deleted' ? false : true)
       }
@@ -189,7 +188,7 @@ const deleteAll = async () => {
   }
   if (confirm(`정말로 선택한 항목들을 삭제하시겠습니까?`)) {
     alert(`선택한 모든 리뷰가 삭제되었습니다.`);
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/reviews/deleteAll`, {
+    await axios.delete(`/api/reviews/deleteAll`, {
       params: {
         reviews: selectedReviews.value,
         isDelete: (currentViewMode.value === 'deleted') ? false : true
@@ -203,7 +202,7 @@ const deleteAll = async () => {
 const reject = async (id) => {
   if (confirm(`정말로 ID: ${id} 리뷰 삭제를 거절 하시겠습니까?`)) {
     alert(`ID: ${id} 리뷰 삭제를 거절하었습니다.`);
-    await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/report/${id}`, {
+    await axios.get(`/api/reviews/report/${id}`, {
         params: {
           isReport: false
         }
@@ -219,7 +218,7 @@ const rejectAll = async () => {
   }
   if (confirm(`정말로 선택한 항목을 모두 거절 하시겠습니까?`)) {
     alert(`선택한 모든 리뷰 삭제를 거절하었습니다.`);
-    await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/reportAll`, {
+    await axios.get(`/api/reviews/reportAll`, {
         params: {
           reviews: selectedReviews.value,
           isReport: false
