@@ -19,19 +19,19 @@ const router = createRouter({
     { path: '/',            name: 'Home',         component: MainLandingPage, meta: { layout: 'EmptyLayout', requiresGuest: true } },
     { path: '/login',       name: 'login',        component: LoginView,       meta: { layout: 'EmptyLayout', requiresGuest: true } },
     { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true} },
-    { path: '/admin/inquiries', name: 'AdminInquitryLis', component: () => import('../components/AdminService/AdminInquiryList.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] }},
-    { path: '/admin/inquiries/:id', name: 'AdminInquiryDetail', component: () => import('../components/AdminService/AdminInquiryDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] },},
-    { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] }},
-    { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] } },
-    { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] } },
-    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN','ROLE_ADMIN_BIZ'] } },
-    { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN', 'ROLE_ADMIN_CS'] }},
+    { path: '/admin/inquiries', name: 'AdminInquitryLis', component: () => import('../components/AdminService/AdminInquiryList.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
+    { path: '/admin/inquiries/:id', name: 'AdminInquiryDetail', component: () => import('../components/AdminService/AdminInquiryDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] },},
+    { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
+    { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] } },
+    { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] } },
+    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER','ROLE_ADMIN_BIZ'] } },
+    { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
     { path: '/errorPage', name: 'errorPage', component: errorPage},
 
     {
       path: '/admin/account',
       component: AdminAccountView, // 👈 2. 부모 레이아웃
-      meta: { requiresAuth: true, requiresRole: ['ROLE_ADMIN'] },
+      meta: { requiresAuth: true, requiresRole: ['ROLE_ADMIN_SUPER'] },
       children: [
         {
           path: 'list',
