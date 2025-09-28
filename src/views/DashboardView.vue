@@ -2,11 +2,13 @@
   <div class="dashboard">
     <h1>대시보드</h1>
     <div class="headline-divider"></div>
-    관리자 페이지 입니다
+    <DashboardPage/>
   </div>
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router'
+import DashboardPage from '@/components/dashboard/DashboardPage.vue';
 
 </script>
 
