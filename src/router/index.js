@@ -20,8 +20,13 @@ const router = createRouter({
     { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true } },
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true } },
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
-
+    {path: '/admin/coupons',name: 'AdminCoupons',component: () => import('@/components/coupon/AdminCouponList.vue'),meta: { requiresAuth: true }},
+    {path: '/admin/coupons/new',name: 'AdminCouponNew',component: () => import('@/components/coupon/AdminCouponForm.vue'),meta: { requiresAuth: true }},
+    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
   ],
+   scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
 })
 
 // 네비게이션 가드 (Navigation Guard)
