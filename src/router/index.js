@@ -18,7 +18,7 @@ const router = createRouter({
   routes: [
     { path: '/',            name: 'Home',         component: MainLandingPage, meta: { layout: 'EmptyLayout', requiresGuest: true } },
     { path: '/login',       name: 'login',        component: LoginView,       meta: { layout: 'EmptyLayout', requiresGuest: true } },
-    { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER'] } },
+      { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER'] } },
     { path: '/admin/inquiries', name: 'AdminInquitryLis', component: () => import('../components/AdminService/AdminInquiryList.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
     { path: '/admin/inquiries/:id', name: 'AdminInquiryDetail', component: () => import('../components/AdminService/AdminInquiryDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] },},
     { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
@@ -27,6 +27,9 @@ const router = createRouter({
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER','ROLE_ADMIN_BIZ'] } },
     { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
     { path: '/errorPage', name: 'errorPage', component: errorPage},
+      {path: '/admin/coupons',name: 'AdminCoupons',component: () => import('@/components/coupon/AdminCouponList.vue'),meta: { requiresAuth: true }},
+      {path: '/admin/coupons/new',name: 'AdminCouponNew',component: () => import('@/components/coupon/AdminCouponForm.vue'),meta: { requiresAuth: true }},
+      { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
 
     {
       path: '/admin/account',
@@ -44,10 +47,13 @@ const router = createRouter({
           component: AdminCreateView,
         },
         // 👇 /admin 접속 시 자동으로 /admin/list로 이동
-        { path: '', redirect: { name: 'adminList' } } 
+        { path: '', redirect: { name: 'adminList' } }
       ]
     },
   ],
+   scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
 })
 
 // 네비게이션 가드 (Navigation Guard)
@@ -86,7 +92,7 @@ function handleNavigation(to, from, next) {
       alert('로그인이 필요한 서비스입니다.');
       return next('/');
     }
-    
+
     // 로그인 상태라면, 역할이 맞는지 검사
     const userRoles = authStore.role || [];
     const hasPermission = userRoles.some(role => requiredRoles.includes(role));

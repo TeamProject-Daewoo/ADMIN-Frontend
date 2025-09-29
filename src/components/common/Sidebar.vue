@@ -12,6 +12,7 @@
       <RouterLink to="/admin/notices" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">공지 사항</RouterLink>
       <RouterLink to="/admin/reviews" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">리뷰 관리</RouterLink>
       <RouterLink to="/admin/account" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') ">관리자 계정 관리</RouterLink>
+      <RouterLink to="/admin/coupons" class="nav-item">쿠폰 관리</RouterLink>
 
     </nav>
   </aside>
