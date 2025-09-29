@@ -44,10 +44,24 @@ const router = createRouter({
           component: AdminCreateView,
         },
         // 👇 /admin 접속 시 자동으로 /admin/list로 이동
-        { path: '', redirect: { name: 'adminList' } } 
+        { path: '', redirect: { name: 'adminList' } }
       ]
     },
+    { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true } },
+    { path: '/about', name: 'about', component: () => import('../views/AboutView.vue'),    meta: { requiresAuth: true }},
+    { path: '/admin/inquiries', name: 'AdminInquitryLis', component: () => import('../components/AdminService/AdminInquiryList.vue'), meta: { requiresAuth: true }},
+    { path: '/admin/inquiries/:id', name: 'AdminInquiryDetail', component: () => import('../components/AdminService/AdminInquiryDetail.vue'), props: true, meta: { requiresAuth: true },},
+    { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true }},
+    { path: "/admin/notices", name: "NoticeList", component: () => import('@/components/AdminNotice/notice.vue'), meta: { requiresAuth: true } },
+    { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true } },
+    { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
+    {path: '/admin/coupons',name: 'AdminCoupons',component: () => import('@/components/coupon/AdminCouponList.vue'),meta: { requiresAuth: true }},
+    {path: '/admin/coupons/new',name: 'AdminCouponNew',component: () => import('@/components/coupon/AdminCouponForm.vue'),meta: { requiresAuth: true }}
+
   ],
+   scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
 })
 
 // 네비게이션 가드 (Navigation Guard)
@@ -86,7 +100,7 @@ function handleNavigation(to, from, next) {
       alert('로그인이 필요한 서비스입니다.');
       return next('/');
     }
-    
+
     // 로그인 상태라면, 역할이 맞는지 검사
     const userRoles = authStore.role || [];
     const hasPermission = userRoles.some(role => requiredRoles.includes(role));
