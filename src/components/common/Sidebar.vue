@@ -6,11 +6,14 @@
     </div>
 
     <nav class="sidebar-nav">
-      <RouterLink to="/dashboard" class="nav-item">대시보드</RouterLink>
-      <RouterLink to="/admin/approvelist" class="nav-item">사업자 관리</RouterLink>
-      <RouterLink to="/admin/inquiries" class="nav-item">문의 목록</RouterLink>
-      <RouterLink to="/admin/notices" class="nav-item">공지 사항</RouterLink>
+      <RouterLink to="/dashboard" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER')">대시보드</RouterLink>
+      <RouterLink to="/admin/approvelist" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_BIZ')">사업자 관리</RouterLink>
+      <RouterLink to="/admin/inquiries" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">문의 목록</RouterLink>
+      <RouterLink to="/admin/notices" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">공지 사항</RouterLink>
+      <RouterLink to="/admin/reviews" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">리뷰 관리</RouterLink>
+      <RouterLink to="/admin/account" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') ">관리자 계정 관리</RouterLink>
       <RouterLink to="/admin/coupons" class="nav-item">쿠폰 관리</RouterLink>
+
     </nav>
   </aside>
 </template>
@@ -18,6 +21,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/api/auth'
+
+const authStore = useAuthStore()
 
 </script>
 
