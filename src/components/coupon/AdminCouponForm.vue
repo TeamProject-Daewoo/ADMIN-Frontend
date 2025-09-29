@@ -49,7 +49,7 @@
 
       <!-- 다운로드 후 유효기간 -->
       <div>
-        <label>다운로드 후 유효기간(일)</label>
+        <label>발급 후 유효기간(일)</label>
         <input v-model.number="coupon.validPeriodAfterDownload" type="number" min="0" />
       </div>
 
@@ -57,13 +57,6 @@
       <div>
         <label>최대 발급 수</label>
         <input v-model.number="coupon.maxIssuance" type="number" min="0" />
-      </div>
-
-
-      <!-- 중복 허용 여부 -->
-      <div>
-        <label>중복 발급 허용(체크시 사용자가 같은코드 여러번 사용가능)</label>
-        <input v-model="coupon.allowDuplicate" type="checkbox" />
       </div>
 
       <!-- 발급 방식 -->
