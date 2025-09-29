@@ -39,7 +39,7 @@ notice.interceptors.response.use(
 
     const shouldRefresh =
       status === 401 ||
-      (status === 403 && original.url?.startsWith('/business'))
+      (status === 403 && original.url?.startsWith('/api/business'))
 
     if (!shouldRefresh) return Promise.reject(err)
 
