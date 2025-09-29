@@ -6,7 +6,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      <RouterLink to="/dashboard" class="nav-item">대시보드</RouterLink>
+      <RouterLink to="/dashboard" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER')">대시보드</RouterLink>
       <RouterLink to="/admin/approvelist" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_BIZ')">사업자 관리</RouterLink>
       <RouterLink to="/admin/inquiries" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">문의 목록</RouterLink>
       <RouterLink to="/admin/notices" class="nav-item" v-if="authStore.hasRole ('ROLE_ADMIN_SUPER') || authStore.hasRole ('ROLE_ADMIN_CS')">공지 사항</RouterLink>

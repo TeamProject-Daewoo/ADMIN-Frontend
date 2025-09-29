@@ -7,6 +7,7 @@
       v-model:rangeDays="rangeDays"
       :loading="loading"
       :numbers="hotelBusinessNumbers"
+      :current-number="businessNumber"
       @apply="applyCustomRange"
       @clear="clearCustomRange"
       @search="setBusiness"
@@ -76,6 +77,9 @@ import NewCustomers from './NewCustomers.vue'
 import RecentActivities from './RecentActivities.vue'
 import api from '@/api/axios'
 
+
+const emit = defineEmits(['setNumber']);
+
 const loading = ref(true)
 const hotels = ref([])
 const reservations = ref([])   // 전체/단일 모두 여기로 집계
@@ -117,6 +121,7 @@ const top10handleKeyTypeChange = createKeyTypeHandler(top10Value)
 const businessNumber = ref(null)
 const setBusiness = (number) => {
   businessNumber.value = number;
+  emit('set-number', number);
   load();
 }
 
@@ -343,9 +348,18 @@ const roomTypeChart = computed(() => {
     const others = tail.reduce((s,[,v])=>s+v,0); top = [...head, ['기타', others]]
   }
   const labels = top.map(([k])=>k); const series = top.map(([,v])=>v)
-  return safeChart(series, { labels, legend:{position:'bottom'},colors: COLOR.value, dataLabels:{enabled:true, formatter:(v)=>v.toFixed(1)+'%'}, tooltip:{ y:{ formatter:(v)=>Number(v).toLocaleString('ko-KR')+' 건' } } })
+  return safeChart(series, { chart: { events: {dataPointSelection: chartClick}}, labels, legend:{position:'bottom'}, colors: COLOR.value, dataLabels:{enabled:true, formatter:(v)=>v.toFixed(1)+'%'}, tooltip:{ y:{ formatter:(v)=>Number(v).toLocaleString('ko-KR')+' 건' } } })
 })
 
+const chartClick = (event, chartContext, config) => {
+  if(!isBusinessNumberNull.value) return true;
+  const seriesIndex = config.seriesIndex;
+  const dataPointIndex = config.dataPointIndex;
+  const clickData = totalRevenueChart.value.options.xaxis.categories[dataPointIndex];
+  const filteredData = hotels.value.filter(hotel => hotel.title === clickData)[0]?.businessNumber || null
+  setBusiness((filteredData === null) ? clickData : filteredData);
+  return true;
+}
 const revenueChart = computed(() => safeChart(
   [{ name:'매출', data: rangeDateLabels.value.map(d=>revenueDailyRaw.value[d]||0) }],
   { chart:{toolbar:{show:false}}, colors: COLOR.value, legend: { show: false },
@@ -364,7 +378,7 @@ const revenueChart = computed(() => safeChart(
 const totalRevenueChart = computed(() => safeChart(
   [{ name:'매출', data: Object.values(revenueInDateRange.value) }],
   { 
-    chart: { type: 'bar' },
+    chart: { type: 'bar', events: {dataPointSelection: chartClick}},
     plotOptions: {
       bar: {
         horizontal: false,

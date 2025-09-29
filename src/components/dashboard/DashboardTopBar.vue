@@ -55,7 +55,8 @@ const props = defineProps({
   endDate: String,
   rangeDays: { type: Number, default: 30 },
   loading: { type: Boolean, default: false },
-  numbers: {type: Set, default: []}
+  numbers: {type: Set, default: []},
+  currentNumber: {type: String, default: ''}
 })
 const emit = defineEmits([
   'update:startDate', 'update:endDate', 'update:rangeDays', 'update:scope',
@@ -93,7 +94,9 @@ const handleFocus = () => {
 const hideSuggestion = () => {
   isInputFocused.value = false;
 }
-
+watch(() => {
+  businessNumberInput.value = props.currentNumber;
+})
 const handleInput = (event) => {
   businessNumberInput.value = event.target.value.replace(/\D/g, '');
 }

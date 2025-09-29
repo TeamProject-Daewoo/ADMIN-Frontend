@@ -18,7 +18,7 @@ const router = createRouter({
   routes: [
     { path: '/',            name: 'Home',         component: MainLandingPage, meta: { layout: 'EmptyLayout', requiresGuest: true } },
     { path: '/login',       name: 'login',        component: LoginView,       meta: { layout: 'EmptyLayout', requiresGuest: true } },
-    { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true} },
+    { path: '/dashboard',   name: 'dashboard',    component: DashboardView,   meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER'] } },
     { path: '/admin/inquiries', name: 'AdminInquitryLis', component: () => import('../components/AdminService/AdminInquiryList.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
     { path: '/admin/inquiries/:id', name: 'AdminInquiryDetail', component: () => import('../components/AdminService/AdminInquiryDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] },},
     { path: '/admin/notices/create', name: 'NoticeCreate', component: () => import('../components/AdminNotice/AdminNoticeCreate.vue'), meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
