@@ -8,7 +8,7 @@
     <DashboardPage @set-number="(value) => currentNumber = value" />
   </div>
 </template>
-
+g
 <script setup>
 import { RouterLink } from 'vue-router'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue';
