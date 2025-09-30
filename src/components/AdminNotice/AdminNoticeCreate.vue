@@ -28,6 +28,21 @@
         required
       ></textarea>
 
+<!--      여기 나중에 수정 필요함!!-->
+      <label for="imageUrl">이미지 URL</label>
+      <input
+          id="imageUrl"
+          v-model="form.content"
+          type="text"
+          placeholder="이미지 주소를 입력하세요"
+      />
+
+      <!-- 미리보기 -->
+      <div v-if="form.content" class="preview">
+        <p>이미지 미리보기:</p>
+        <img :src="form.content" alt="preview" />
+      </div>
+
       <button type="submit" :disabled="loading">
         {{ loading ? "저장 중..." : "공지사항 등록" }}
       </button>
