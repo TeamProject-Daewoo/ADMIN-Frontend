@@ -10,7 +10,9 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-    server: {
+  base: '/admin/', 
+  
+  server: {
     port: 7000,   // 원하는 포트 번호
     strictPort: true // 다른 프로세스가 사용 중이면 실패하고 종료
   },
