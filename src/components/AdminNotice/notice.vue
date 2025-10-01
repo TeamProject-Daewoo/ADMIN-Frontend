@@ -48,7 +48,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import notice from '@/api/notice_axios';
+import notice from '@/api/axios';
 
 const router = useRouter();
 
