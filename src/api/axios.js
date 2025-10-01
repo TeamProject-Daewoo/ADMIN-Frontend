@@ -1,6 +1,9 @@
 // src/api/axios.js
 import axios from 'axios'
 import { useAuthStore } from '@/api/auth'
+import { useRouter } from 'vue-router'; // useRouter 임포트
+
+const router = useRouter(); // router 인스턴스 생성
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACK_ADMIN_URL,

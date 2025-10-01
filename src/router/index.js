@@ -28,7 +28,7 @@ const router = createRouter({
     { path: '/admin/notices/:id', name: 'NoticeDetail', component: () => import('@/components/AdminNotice/NoticeDetail.vue'), props: true, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] } },
     { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER','ROLE_ADMIN_BIZ'] } },
     { path: '/admin/reviews', name: 'Review', component: ReviewList, meta: { requiresAuth: true, requiredRoles: ['ROLE_ADMIN_SUPER', 'ROLE_ADMIN_CS'] }},
-    { path: '/errorPage', name: 'errorPage', component: errorPage},
+    { path: '/errorPage', name: 'errorPage', component: errorPage, meta: { layout: 'EmptyLayout' } },
       {path: '/admin/coupons',name: 'AdminCoupons',component: () => import('@/components/coupon/AdminCouponList.vue'),meta: { requiresAuth: true }},
       {path: '/admin/coupons/new',name: 'AdminCouponNew',component: () => import('@/components/coupon/AdminCouponForm.vue'),meta: { requiresAuth: true }},
       { path: '/admin/approvelist', name: 'ApproveList', component: ApproveList , meta: { requiresAuth: true } },
