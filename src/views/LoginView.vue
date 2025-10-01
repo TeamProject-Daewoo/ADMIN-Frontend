@@ -59,6 +59,7 @@ const handleLogin = async () => {
         // Body로 받은 Access Token을 Pinia 스토어에 저장
         authStore.setToken(response.data.accessToken);
 
+        //여기 수정
         alert('로그인에 성공했습니다!');
         router.push('/dashboard'); //메인페이지로 이동
 

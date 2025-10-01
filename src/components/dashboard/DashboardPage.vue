@@ -76,6 +76,9 @@ import IncomeExpensesPanel from './IncomeExpensesPanel.vue'
 import NewCustomers from './NewCustomers.vue'
 import RecentActivities from './RecentActivities.vue'
 import api from '@/api/axios'
+import { useAuthStore } from '@/api/auth'
+import CsDashboardView from '@/components/dashboard/CsDashboardPage.vue'
+import BizDashboardView from '@/components/dashboard/BizDashboardPage.vue'
 
 
 const emit = defineEmits(['setNumber']);
@@ -99,6 +102,8 @@ const endDate   = ref('')
 const revenueValue = ref('');
 const reservationValue = ref('');
 const top10Value = ref('');
+
+const auth = useAuthStore();
 
 /* props */
 const isBusinessNumberNull = computed(() => businessNumber.value === null);
