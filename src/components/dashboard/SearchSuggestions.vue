@@ -81,6 +81,10 @@ const highlightMatch = (suggestion) => {
   padding: 8px 12px;
 }
 
+.suggestion-item {
+  min-height: 20px;
+  width: 100%;
+}
 .suggestion-item:hover {
   background-color: #f9fafb; /* 호버 효과 */
 }

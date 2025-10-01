@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard" v-if="auth.hasRole('ROLE_ADMIN_SUPER')">
     <div class="main-dashboard-title">
       <h1>대시보드</h1>
       <p>현재 사업자: <b :class="currentNumberStyle">{{ currentNumber === null ? '모두' : currentNumber }}</b></p>
@@ -7,13 +7,19 @@
     <div class="headline-divider"></div>
     <DashboardPage @set-number="(value) => currentNumber = value" />
   </div>
+  <div v-else-if="auth.hasRole('ROLE_ADMIN_CS')"><CsDashboardPage/></div>
+  <div v-else-if="auth.hasRole('ROLE_ADMIN_BIZ')"><BizDashboardPage/></div>
 </template>
-
+g
 <script setup>
 import { RouterLink } from 'vue-router'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue';
 import { ref, watch } from 'vue';
+import { useAuthStore } from '@/api/auth';
+import CsDashboardPage from '@/components/dashboard/CsDashboardPage.vue';
+import BizDashboardPage from '@/components/dashboard/BizDashboardPage.vue';
 
+const auth = useAuthStore();
 const currentNumber = ref(null);
 const currentNumberStyle = ref('not-selected-business-number')
 watch(() => currentNumber.value, 
