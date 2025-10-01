@@ -96,7 +96,7 @@ const goDetail = (id) => {
 
 const fetchNoticesPaged = async (page = 0) => {
   try {
-    const res = await notice.get(`${import.meta.env.VITE_API_URL}/api/notices/paged?page=${page}&size=${pageSize}`);
+    const res = await notice.get(`${import.meta.env.VITE_BACK_ADMIN_URL}/api/admin/notices/paged?page=${page}&size=${pageSize}`);
     notices.value = res.data.content;
     totalPages.value = res.data.totalPages;
     currentPage.value = res.data.pageNumber;
