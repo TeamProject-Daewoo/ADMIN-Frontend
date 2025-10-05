@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'; // useRouter 임포트
 const router = useRouter(); // router 인스턴스 생성
 
 const api = axios.create({
-  baseURL: '/admin',
+  baseURL: import.meta.env.VITE_BACK_ADMIN_URL,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true, // refreshToken 쿠키 전송
 })
