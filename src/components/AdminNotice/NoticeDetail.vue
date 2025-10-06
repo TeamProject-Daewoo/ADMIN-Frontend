@@ -91,10 +91,16 @@ const cancelEdit = () => {
 };
 
 const saveEdit = async () => {
+  // 1. 제목과 내용이 비어있는지 먼저 확인합니다.
   if (!editTitle.value.trim() || !editContent.value.trim()) {
     message.value = '제목과 내용을 모두 입력해주세요.';
     isError.value = true;
     return;
+  }
+
+  // 2. 사용자에게 수정 여부를 물어보고 확인합니다.
+  if (!confirm('수정하시겠습니까?')) {
+    return; // 사용자가 '취소'를 누르면 여기서 함수를 종료합니다.
   }
 
   loading.value = true;
@@ -106,19 +112,15 @@ const saveEdit = async () => {
     await api.put(`/api/admin/notices/${id}`, {
       title: editTitle.value,
       content: editContent.value,
-      category: notice.value.category,  // 기존 카테고리 유지
+      category: notice.value.category,
     });
 
-    // 수정 완료 후 데이터 업데이트
-    notice.value.title = editTitle.value;
-    notice.value.content = editContent.value;
+    // 3. 수정 성공 시 alert 알림을 띄웁니다.
+    alert('공지사항이 성공적으로 수정되었습니다.');
 
-    isEditing.value = false;
-    message.value = '공지사항이 성공적으로 수정되었습니다.';
-    isError.value = false;
-
-    // 수정 완료 후 목록 페이지로 이동
+    // 4. 사용자가 alert의 '확인'을 누르면 목록 페이지로 이동합니다.
     router.push('/admin/notices');
+
   } catch (error) {
     console.error('공지 수정 실패:', error);
     if (error.response && error.response.status === 403) {

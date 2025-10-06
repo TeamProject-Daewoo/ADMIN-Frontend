@@ -40,6 +40,9 @@
 <script setup>
 import { reactive, ref } from "vue";
 import axios from "@/api/axios";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const form = reactive({
   category: "",
@@ -68,7 +71,9 @@ const submitNotice = async () => {
       title: form.title,
       content: form.content,
     });
-    message.value = "공지사항이 성공적으로 등록되었습니다.";
+    alert("공지사항이 성공적으로 등록되었습니다.");
+    router.push('/admin/notices');
+    
     isError.value = false;
 
     // 초기화
