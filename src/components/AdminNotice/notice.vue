@@ -107,9 +107,13 @@ const fetchNoticesPaged = async (page = 0) => {
 
 const deleteNotice = async (id) => {
   try {
+      if (!confirm('삭제하시겠습니까?')) {
+    return; // 사용자가 '취소'를 누르면 여기서 함수를 종료합니다.
+  }
     await notice.delete(`/api/admin/notices/${id}`);
     // 삭제 성공 후 리스트 새로고침
     fetchNoticesPaged(currentPage.value);
+    alert('게시글이 삭제되었습니다');
   } catch (error) {
     console.error('삭제 실패:', error);
     alert('삭제 중 오류가 발생했습니다.');
