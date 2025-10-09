@@ -40,6 +40,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '@/api/axios';
+import { useUiStore } from '@/stores/commonUiStore';
+
+
+const uiStore = useUiStore();
 
 const admins = ref([]);
 const loading = ref(true);
@@ -50,7 +54,7 @@ onMounted(async () => {
     admins.value = data;
   } catch (error) {
     console.error("관리자 목록 조회 실패:", error);
-    alert("관리자 목록을 불러오는 데 실패했습니다.");
+    await uiStore.openModal({title: "관리자 목록을 불러오는 데 실패했습니다."});
   } finally {
     loading.value = false;
   }
@@ -63,9 +67,13 @@ const formatDate = (dateStr) => {
 // ✨ 추가된 부분: 관리자 삭제 함수
 const deleteAdmin = async (adminToDelete) => {
   // 사용자에게 정말 삭제할 것인지 확인받습니다.
-  if (!confirm(`'${adminToDelete.name}'(${adminToDelete.username}) 관리자를 정말 삭제하시겠습니까?`)) {
-    return;
-  }
+  await uiStore.openModal({
+      title: '관리자 삭제',
+      message: `'${adminToDelete.name}'(${adminToDelete.username}) 관리자를 정말 삭제하시겠습니까?`,
+      showCancel: true,
+      confirmText: '삭제',
+      cancelText: '취소'
+    });
 
   try {
     // 서버에 삭제 요청을 보냅니다. (엔드포인트는 실제 API에 맞게 조정하세요)
@@ -74,11 +82,11 @@ const deleteAdmin = async (adminToDelete) => {
     // API 호출 성공 시, 화면에서도 해당 관리자를 제거합니다.
     admins.value = admins.value.filter(admin => admin.username !== adminToDelete.username);
 
-    alert("관리자 계정이 성공적으로 삭제되었습니다.");
+    uiStore.openModal({title:"관리자 계정이 성공적으로 삭제되었습니다."});
 
   } catch (error) {
     console.error("관리자 삭제 실패:", error);
-    alert("관리자 계정 삭제에 실패했습니다.");
+    uiStore.openModal({title:"관리자 계정 삭제에 실패했습니다."});
   }
 };
 </script>

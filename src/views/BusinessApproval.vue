@@ -88,7 +88,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '@/api/axios';
+import { useUiStore } from '@/stores/commonUiStore';
 
+const uiStore = useUiStore();
 const users = ref([]);
 const activeTab = ref('pending');
 const selectedUser = ref(null);
@@ -116,53 +118,94 @@ const selectUser = async (user) => {
 
 // [수정] 승인 처리 (PENDING -> APPROVED)
 const handleApprove = async (username) => {
-  if (!confirm("승인 처리하시겠습니까?")) return;
+  await uiStore.openModal({
+      title: '승인 처리',
+      message: "승인 처리하시겠습니까?",
+      showCancel: true,
+      confirmText: '확인',
+      cancelText: '취소'
+    });
   try {
     await api.patch(`/api/admin/business-users/${username}/approve`);
     updateUserStatus(username, 'APPROVED');
-    alert("승인 처리되었습니다.");
-  } catch (error) { alert("승인 실패"); }
+    uiStore.openModal({title:"승인 처리되었습니다."})
+  } catch (error) { uiStore.openModal({ title: "승인 실패", message: "승인 처리에 실패했습니다." }); }
 };
 
 // [수정] 거절 처리 (PENDING -> REJECTED)
 const handleReject = async (username) => {
-  if (!confirm("거절 처리하시겠습니까?")) return;
+
+  await uiStore.openModal({ 
+      title: '거절 처리',
+      message: "거절 처리하시겠습니까?",
+      showCancel: true,
+      confirmText: '확인',
+      cancelText: '취소'
+  });
+
   try {
     await api.patch(`/api/admin/business-users/${username}/to-rejected`);
     updateUserStatus(username, 'REJECTED');
-    alert("거절 처리되었습니다.");
-  } catch (error) { alert("거절 실패"); }
+    uiStore.openModal({ title: "거절 처리되었습니다." });
+  } catch (error) {
+    uiStore.openModal({ title: "거절 실패", message: "거절 처리에 실패했습니다." });
+  }
 };
 
 // [추가] 최종 삭제 (DB에서 제거)
 const handleDelete = async (username) => {
-  if (!confirm("정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+  await uiStore.openModal({
+      title: '사용자 삭제',
+      message: "정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      showCancel: true,
+      confirmText: '삭제',
+      cancelText: '취소'
+  });
+
   try {
     await api.delete(`/api/admin/business-users/${username}`);
     users.value = users.value.filter(u => u.username !== username);
     selectedUser.value = null;
-    alert("삭제되었습니다.");
-  } catch (error) { alert("삭제 실패"); }
+    uiStore.openModal({ title: "삭제되었습니다." });
+  } catch (error) {
+    uiStore.openModal({ title: "삭제 실패", message: "사용자 삭제에 실패했습니다." });
+  }
 };
 
 // [추가] '대기' 상태로 변경 (APPROVED -> PENDING)
 const handleChangeToPending = async (username) => {
-  if (!confirm("'대기' 상태로 변경하시겠습니까?")) return;
+  await uiStore.openModal({
+      title: '상태 변경',
+      message: "'대기' 상태로 변경하시겠습니까?",
+      showCancel: true,
+      confirmText: '변경',
+      cancelText: '취소'
+  });
   try {
     await api.patch(`/api/admin/business-users/${username}/to-pending`);
     updateUserStatus(username, 'PENDING');
-    alert("'대기' 상태로 변경되었습니다.");
-  } catch (error) { alert("상태 변경 실패"); }
+    uiStore.openModal({ title: "'대기' 상태로 변경되었습니다." });
+  } catch (error) { 
+    uiStore.openModal({ title: "상태 변경 실패", message: "'대기' 상태 변경에 실패했습니다." });
+  }
 };
 
 // [추가] '차단(거절)' 상태로 변경 (APPROVED -> REJECTED)
 const handleChangeToRejected = async (username) => {
-  if (!confirm("'차단(거절)' 상태로 변경하시겠습니까?")) return;
+  await uiStore.openModal({
+      title: '상태 변경',
+      message: "'차단(거절)' 상태로 변경하시겠습니까?",
+      showCancel: true,
+      confirmText: '변경',
+      cancelText: '취소'
+  });
   try {
     await api.patch(`/api/admin/business-users/${username}/to-rejected`);
     updateUserStatus(username, 'REJECTED');
-    alert("'차단(거절)' 상태로 변경되었습니다.");
-  } catch (error) { alert("상태 변경 실패"); }
+    uiStore.openModal({ title: "'차단(거절)' 상태로 변경되었습니다." });
+  } catch (error) { 
+    uiStore.openModal({ title: "상태 변경 실패", message: "'차단(거절)' 상태 변경에 실패했습니다." });
+  }
 };
 
 // --- 유틸리티 함수 ---

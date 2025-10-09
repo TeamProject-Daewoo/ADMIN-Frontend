@@ -13,6 +13,7 @@ import AdminListView from '@/components/AdminAccounts/AdminListView.vue';
 import AdminAccountView from '@/views/AdminAccount.vue';
 import CsDashboardView from '@/components/dashboard/CsDashboardPage.vue'
 import BizDashboardView from '@/components/dashboard/BizDashboardPage.vue'
+import { useUiStore } from '@/stores/commonUiStore'
 
 
 const router = createRouter({
@@ -75,9 +76,10 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-function handleNavigation(to, from, next) {
+async function handleNavigation(to, from, next) {
   const authStore = useAuthStore()
   const isLoggedIn = authStore.isLoggedIn; // getter를 사용하는 것이 더 일관성 있습니다.
+  const uiStore = useUiStore();
 
   // 1️⃣ Case: 로그아웃 상태여야 하는 페이지 (로그인, 회원가입 등)
   if (to.meta.requiresGuest && isLoggedIn) {
@@ -90,7 +92,7 @@ function handleNavigation(to, from, next) {
   if (requiredRoles && requiredRoles.length > 0) {
     if (!isLoggedIn) {
       // 역할이 필요한 페이지에 비로그인 상태로 접근 시
-      alert('로그인이 필요한 서비스입니다.');
+      await uiStore.openModal({title: '로그인이 필요한 서비스입니다.'});
       return next('/');
     }
 
@@ -109,7 +111,7 @@ function handleNavigation(to, from, next) {
 
   // 3️⃣ Case: 역할은 필요 없지만 '로그인' 자체는 필수인 페이지
   if (to.meta.requiresAuth && !isLoggedIn) {
-    alert('로그인이 필요한 서비스입니다.');
+    await uiStore.openModal({title: '로그인이 필요한 서비스입니다.'});
     return next('/');
   }
 

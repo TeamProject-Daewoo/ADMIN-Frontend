@@ -49,6 +49,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import SearchSuggestions from './SearchSuggestions.vue'
+import { useUiStore } from '@/stores/commonUiStore'
 
 const props = defineProps({
   startDate: String,
@@ -80,6 +81,7 @@ const modelScope = computed({
   set: v => emit('update:scope', v)
 })
 
+const uiStore = useUiStore();
 
 const isInputFocused = ref(false);
 const inputRef = ref(null);
@@ -113,7 +115,7 @@ const selectSuggestion = (suggestion) => {
   finalize();
 };
 
-const finalize = () => {
+const finalize = async () => {
   businessNumber.value = businessNumberInput.value;
   if(inputRef.value) {
     isInputFocused.value = false;
@@ -122,7 +124,7 @@ const finalize = () => {
       emit('search', businessNumber.value);
     }
     else {
-      alert('존재하지 않는 사업자 번호입니다')
+      await uiStore.openModal({title: '존재하지 않는 사업자 번호입니다'});
     }
   }
 };

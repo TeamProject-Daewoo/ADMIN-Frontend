@@ -72,8 +72,10 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/api/axios';
+import { useUiStore } from '@/stores/commonUiStore';
  
 const router = useRouter();
+const uiStore = useUiStore();
 // ✨ 변경된 부분: adminId를 username으로 수정하여 템플릿과 일치시킴
 const formData = reactive({ name: '', username: '', password: '', confirmPassword: '', role: null });
 const selectedRoles = reactive({ cs: false, biz: false });
@@ -151,7 +153,7 @@ watch(() => selectedRoles.biz, (isBiz) => {
 const checkAdminId = async () => {
   // ✨ 추가된 부분: 아이디 형식/길이가 유효하지 않으면 중복확인 실행 안 함
   if (!isUsernameValid.value) {
-    alert('아이디 형식을 확인해주세요.');
+    await uiStore.openModal({title:'아이디 형식을 확인해주세요.'});
     return;
   }
   try {
@@ -190,17 +192,17 @@ const resetForm = () => {
  
 const handleCreate = async () => {
   if (!isFormValid.value) {
-    alert('모든 정보를 올바르게 입력해주세요.');
+    await uiStore.openModal({title:'모든 정보를 올바르게 입력해주세요.'});
     return;
   }
   try {
     // ✨ 변경된 부분: 서버로 보낼 데이터에 username 사용
     const payload = { ...formData };
     await api.post('/api/admin/create', payload);
-    alert('관리자 계정이 생성되었습니다.');
+    await uiStore.openModal({title: '관리자 계정이 생성되었습니다.'});
     resetForm();
   } catch (error) {
-    alert(error.response?.data?.message || error.response?.data || '계정 생성에 실패했습니다.');
+    await uiStore.openModal({title:'계정 생성에 실패했습니다.'});
   }
 };
 </script>

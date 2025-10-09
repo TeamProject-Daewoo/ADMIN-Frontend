@@ -6,6 +6,9 @@ import Footer from './components/common/Footer.vue'
 import Header from './components/common/Header.vue'
 
 import { useAuthStore } from './api/auth'
+import AlertModal from './components/common/AlertModal.vue'
+import { storeToRefs } from 'pinia'
+import { useUiStore } from './stores/commonUiStore'
 
 
 const authStore = useAuthStore()
@@ -39,6 +42,7 @@ onMounted(async () => {
   <div v-else>
     <RouterView />
   </div>
+  <AlertModal/>
 </template>
 
 <style scoped>

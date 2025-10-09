@@ -49,8 +49,10 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import notice from '@/api/axios';
+import { useUiStore } from '@/stores/commonUiStore';
 
 const router = useRouter();
+const uiStore = useUiStore();
 
 const notices = ref([]);
 const selectedCategory = ref('');
@@ -107,17 +109,18 @@ const fetchNoticesPaged = async (page = 0) => {
 
 const deleteNotice = async (id) => {
   try {
-      if (!confirm('삭제하시겠습니까?')) {
-    return; // 사용자가 '취소'를 누르면 여기서 함수를 종료합니다.
-  }
+    await uiStore.openModal({
+      title: '공지사항 삭제',
+      message: '정말 삭제하시겠습니까?',
+      showCancel: true,
+      confirmText: '삭제',
+      cancelText: '취소'
+    });
     await notice.delete(`/api/admin/notices/${id}`);
     // 삭제 성공 후 리스트 새로고침
     fetchNoticesPaged(currentPage.value);
-    alert('게시글이 삭제되었습니다');
-  } catch (error) {
-    console.error('삭제 실패:', error);
-    alert('삭제 중 오류가 발생했습니다.');
-  }
+    uiStore.openModal({title: '게시글이 삭제되었습니다'});
+  } catch (error) {}
 };
 
 const goPage = (page) => {

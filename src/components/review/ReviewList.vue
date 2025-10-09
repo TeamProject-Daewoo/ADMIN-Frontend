@@ -96,6 +96,9 @@
 import axios from "@/api/axios";
 import { computed, onMounted, ref, watch } from "vue";
 import { debounce } from 'lodash';
+import { useUiStore } from "@/stores/commonUiStore";
+
+const uiStore = useUiStore();
 
 const deletedList = ref(false);
 const reviewList = ref([]);
@@ -170,64 +173,84 @@ const formatDate = (dateString) => {
 };
 
 const deleteReview = async (id) => {
-  if (confirm(`정말로 ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제를 취소 " : "리뷰를 삭제 "}하시겠습니까?`)) {
-    alert(`ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제가 취소 " : "리뷰가 삭제 "}되었습니다.`);
-    console.log((currentViewMode.value === 'deleted' ? false : true))
-    await axios.delete(`/api/reviews/delete/${id}`, {
-      params: {
-        isDelete: (currentViewMode.value === 'deleted' ? false : true)
-      }
-    });
-    fetchReviews();
-   }
+  await uiStore.openModal({
+    title: '리뷰 삭제',
+    message: `정말로 ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제를 취소 " : "리뷰를 삭제 "}하시겠습니까?`,
+    showCancel: true,
+    confirmText: '확인',
+    cancelText: '취소'
+  });
+  await uiStore.openModal({title: `ID: ${id} ${(currentViewMode.value === 'deleted') ?  "리뷰 삭제가 취소 " : "리뷰가 삭제 "}되었습니다.`})
+
+  await axios.delete(`/api/reviews/delete/${id}`, {
+    params: {
+      isDelete: (currentViewMode.value === 'deleted' ? false : true)
+    }
+  });
+  fetchReviews();
 };
 const deleteAll = async () => {
   if (selectedReviews.value.length === 0) {
-      alert("하나 이상의 삭제할 항목을 선택해주세요.");
-      return; 
+    await uiStore.openModal({title: "하나 이상의 삭제할 항목을 선택해주세요."})
+    return; 
   }
-  if (confirm(`정말로 선택한 항목들을 삭제하시겠습니까?`)) {
-    alert(`선택한 모든 리뷰가 삭제되었습니다.`);
-    await axios.delete(`/api/reviews/deleteAll`, {
-      params: {
-        reviews: selectedReviews.value,
-        isDelete: (currentViewMode.value === 'deleted') ? false : true
-      }
-    });
-    fetchReviews();
-    selectedReviews.value = [];
-  } 
+  await uiStore.openModal({
+    title: '선택한 리뷰 모두 삭제',
+    message: `정말로 선택한 항목들을 삭제하시겠습니까?`,
+    showCancel: true,
+    confirmText: '삭제',
+    cancelText: '취소'
+  });
+  await uiStore.openModal({title: "선택한 모든 리뷰가 삭제되었습니다."})
+  await axios.delete(`/api/reviews/deleteAll`, {
+    params: {
+      reviews: selectedReviews.value,
+      isDelete: (currentViewMode.value === 'deleted') ? false : true
+    }
+  });
+  fetchReviews();
+  selectedReviews.value = [];
 }
 
 const reject = async (id) => {
-  if (confirm(`정말로 ID: ${id} 리뷰 삭제를 거절 하시겠습니까?`)) {
-    alert(`ID: ${id} 리뷰 삭제를 거절하었습니다.`);
-    await axios.get(`/api/reviews/report/${id}`, {
-        params: {
-          isReport: false
-        }
+  await uiStore.openModal({
+    title: '리뷰 삭제 거절',
+    message: `정말로 ID: ${id} 리뷰 삭제를 거절 하시겠습니까?`,
+    showCancel: true,
+    confirmText: '거절',
+    cancelText: '취소'
+  });
+  await uiStore.openModal({title: `ID: ${id} 리뷰 삭제를 거절하었습니다.`})
+  await axios.get(`/api/reviews/report/${id}`, {
+      params: {
+        isReport: false
       }
-    );
-    fetchReviews();
-   }
+    }
+  );
+  fetchReviews();
 }
 const rejectAll = async () => {
   if (selectedReviews.value.length === 0) {
-      alert("하나 이상의 삭제할 항목을 선택해주세요.");
-      return; 
+    await uiStore.openModal({title: "하나 이상의 삭제할 항목을 선택해주세요."})
+    return; 
   }
-  if (confirm(`정말로 선택한 항목을 모두 거절 하시겠습니까?`)) {
-    alert(`선택한 모든 리뷰 삭제를 거절하었습니다.`);
-    await axios.get(`/api/reviews/reportAll`, {
-        params: {
-          reviews: selectedReviews.value,
-          isReport: false
-        }
+  await uiStore.openModal({
+    title: '선택한 리뷰 모두 거절',
+    message: `정말로 선택한 항목을 모두 거절 하시겠습니까?`,
+    showCancel: true,
+    confirmText: '거절',
+    cancelText: '취소'
+  });
+  await uiStore.openModal({title: `선택한 모든 리뷰 삭제를 거절하었습니다.`})
+  await axios.get(`/api/reviews/reportAll`, {
+      params: {
+        reviews: selectedReviews.value,
+        isReport: false
       }
-    );
-    fetchReviews();
-    selectedReviews.value = [];
-   }
+    }
+  );
+  fetchReviews();
+  selectedReviews.value = [];
 }
 
 

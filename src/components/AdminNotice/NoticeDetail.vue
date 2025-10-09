@@ -37,6 +37,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/api/axios'; // jwt 포함된 axios 인스턴스
+import { useUiStore } from '@/stores/commonUiStore';
+const uiStore = useUiStore();
 
 const route = useRoute();
 const router = useRouter();  // <-- 라우터 추가
@@ -98,10 +100,13 @@ const saveEdit = async () => {
     return;
   }
 
-  // 2. 사용자에게 수정 여부를 물어보고 확인합니다.
-  if (!confirm('수정하시겠습니까?')) {
-    return; // 사용자가 '취소'를 누르면 여기서 함수를 종료합니다.
-  }
+  await uiStore.openModal({
+        title: '수정하기',
+        message: '정말 수정하시겠습니까?',
+        showCancel: true,
+        confirmText: '수정',
+        cancelText: '취소'
+      });
 
   loading.value = true;
   message.value = '';
@@ -116,7 +121,7 @@ const saveEdit = async () => {
     });
 
     // 3. 수정 성공 시 alert 알림을 띄웁니다.
-    alert('공지사항이 성공적으로 수정되었습니다.');
+    await uiStore.openModal({title: '공지사항이 성공적으로 수정되었습니다.'});
 
     // 4. 사용자가 alert의 '확인'을 누르면 목록 페이지로 이동합니다.
     router.push('/admin/notices');

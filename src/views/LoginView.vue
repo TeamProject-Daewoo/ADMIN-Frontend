@@ -42,7 +42,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // useRouter 임포트
 import api from '@/api/axios'; // 우리가 만든 axios 인스턴스 임포트
 import { useAuthStore } from '@/api/auth';
+import { useUiStore } from '@/stores/commonUiStore';
 
+const uiStore = useUiStore();
 const user_name = ref('');
 const password = ref('');
 const passwordFieldType = ref('password');
@@ -60,12 +62,12 @@ const handleLogin = async () => {
         authStore.setToken(response.data.accessToken);
 
         //여기 수정
-        alert('로그인에 성공했습니다!');
+        await uiStore.openModal({title: '로그인에 성공했습니다!'});
         router.push('/dashboard'); //메인페이지로 이동
 
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert(error.response?.data?.message || error.response?.data || "로그인에 실패했습니다.");
+      await uiStore.openModal({title: "로그인에 실패했습니다."});
     }
 };
 
