@@ -41,8 +41,10 @@
 import { reactive, ref } from "vue";
 import axios from "@/api/axios";
 import { useRouter } from 'vue-router';
+import { useUiStore } from "@/stores/commonUiStore";
 
 const router = useRouter();
+const uiStore = useUiStore();
 
 const form = reactive({
   category: "",
@@ -71,7 +73,8 @@ const submitNotice = async () => {
       title: form.title,
       content: form.content,
     });
-    alert("공지사항이 성공적으로 등록되었습니다.");
+    await uiStore.openModal({title:"공지사항이 성공적으로 등록되었습니다."});
+    console.log(uiStore.isModalVisible)
     router.push('/admin/notices');
     
     isError.value = false;

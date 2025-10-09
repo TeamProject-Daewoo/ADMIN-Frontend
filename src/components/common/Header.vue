@@ -3,9 +3,11 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/api/auth';
 import api from '@/api/axios';
+import { useUiStore } from '@/stores/commonUiStore';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const uiStore = useUiStore();
 
 const headerClass = computed(() => {
   return 'white-header';
@@ -28,7 +30,7 @@ const handleLogout = async () => {
   try {
     await api.post('/api/auth/logout');
     authStore.logout();
-    alert('로그아웃되었습니다.');
+    await uiStore.openModal({title: '로그아웃되었습니다.'});
     router.push('/');
   } catch (error) {
     console.error('로그아웃 실패:', error);

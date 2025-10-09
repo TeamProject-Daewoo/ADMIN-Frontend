@@ -58,10 +58,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { fetchInquiries } from '@/api/adminInquiries';
+import { useUiStore } from '@/stores/commonUiStore';
 
 const inquiries = ref({ content: [], first: true, last: true, totalPages: 1 });
 const page = ref(0);
 const statusFilter = ref('');
+const uiStore = useUiStore();
 
 const loadInquiries = async () => {
   try {
@@ -69,7 +71,7 @@ const loadInquiries = async () => {
     inquiries.value = res.data;
   } catch (e) {
     console.error('문의 목록 로딩 오류:', e);
-    alert('문의 목록을 불러오는 중 오류가 발생했습니다.');
+    await uiStore.openModal({title: '문의 목록을 불러오는 중 오류가 발생했습니다.'});
   }
 };
 

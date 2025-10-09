@@ -55,9 +55,11 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchInquiryDetail, postAnswer } from '@/api/adminInquiries';
+import { useUiStore } from '@/stores/commonUiStore';
 
 const route = useRoute();
 const router = useRouter();
+const uiStore = useUiStore();
 
 const inquiry = ref(null);
 const answerContent = ref('');
@@ -68,7 +70,7 @@ const loadDetail = async () => {
     const res = await fetchInquiryDetail(route.params.id);
     inquiry.value = res.data;
   } catch (e) {
-    alert('문의 상세를 불러오는 중 오류가 발생했습니다.');
+    await uiStore.openModal({title: '문의 상세를 불러오는 중 오류가 발생했습니다.'});
   }
 };
 
@@ -80,16 +82,16 @@ onMounted(() => {
 // 답변 제출
 const submitAnswer = async () => {
   if (!answerContent.value.trim()) {
-    alert('답변 내용을 입력하세요.');
+    await uiStore.openModal({title: '답변 내용을 입력하세요.'});
     return;
   }
 
   try {
     await postAnswer(inquiry.value.id, answerContent.value, 'admin'); // 실제 관리자 아이디로 바꿔주세요
-    alert('답변이 등록되었습니다.');
+    await uiStore.openModal({title: '답변이 등록되었습니다.'});
     router.push('/admin/inquiries');
   } catch (e) {
-    alert('답변 등록 중 오류가 발생했습니다.');
+    await uiStore.openModal({title: '답변 등록 중 오류가 발생했습니다.'});
   }
 };
 

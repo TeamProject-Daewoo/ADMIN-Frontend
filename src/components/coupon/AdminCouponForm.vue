@@ -78,8 +78,10 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/axios'
+import { useUiStore } from '@/stores/commonUiStore'
 
 const router = useRouter()
+const uiStore = useUiStore()
 
 const coupon = reactive({
   name: '',
@@ -104,11 +106,11 @@ const submitForm = async () => {
     }
 
     await api.post('/api/coupons', payload)
-    alert('쿠폰이 등록되었습니다!')
+    await uiStore.openModal({title: '쿠폰이 등록되었습니다!'});
     router.push('/admin/coupons') // ✅ 등록 후 리스트 페이지로 이동
   } catch (error) {
     console.error('쿠폰 등록 실패:', error.response?.data || error.message)
-    alert('쿠폰 등록 실패')
+    await uiStore.openModal({title: '쿠폰 등록 실패'});
   }
 }
 </script>
