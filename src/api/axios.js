@@ -49,7 +49,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         const authStore = useAuthStore();
         authStore.logout();
-        window.location.href = '/login';
+        // window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }

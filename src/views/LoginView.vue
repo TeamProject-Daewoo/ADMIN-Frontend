@@ -4,7 +4,7 @@
       <div class="form-content">
         <h1>로그인</h1>
         <p class="subtitle">로그인해주세요</p>
-
+          
         <form @submit.prevent="handleLogin">
           <div class="input-group">
             <label for="user_name">이메일</label>
@@ -20,7 +20,10 @@
               </span>
             </div>
           </div>
-
+          <div class="input-group">
+            <div ref="recaptcha" class="g-recaptcha"></div>
+          </div>
+          
           <button type="submit" class="auth-button">로그인</button>
         </form>
       </div>
@@ -38,12 +41,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'; // useRouter 임포트
 import api from '@/api/axios'; // 우리가 만든 axios 인스턴스 임포트
 import { useAuthStore } from '@/api/auth';
 import { useUiStore } from '@/stores/commonUiStore';
 
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 const uiStore = useUiStore();
 const user_name = ref('');
 const password = ref('');
@@ -51,13 +55,41 @@ const passwordFieldType = ref('password');
 const router = useRouter(); // router 인스턴스 생성
 const authStore = useAuthStore();
 
+const recaptcha = ref(null)
+const widgetId = ref(null)
+const renderRecaptcha = () => {
+  if (!recaptcha.value || recaptcha.value.hasChildNodes()) return
+
+  widgetId.value = window.grecaptcha.render(recaptcha.value, {
+    sitekey: siteKey,
+    callback: onCaptchaSuccess
+  })
+}
+
+const loadRecaptcha = () => {
+  if (window.grecaptcha) {
+    renderRecaptcha()
+  } else {
+    setTimeout(loadRecaptcha, 300)
+  }
+}
+
+onMounted(() => {
+  loadRecaptcha()
+})
+
 const handleLogin = async () => {
+    if(!window.token) {
+      uiStore.openModal({title: 'reCAPTCHA 확인 필요', message: 'reCAPTCHA 확인란을 체크해주세요.'});
+      return;
+    }
     try {
         const response = await api.post('/api/auth/login', {
             username: user_name.value,
             password: password.value,
+            recaptchaToken: window.token
         });
-        
+        console.log(response)
         // Body로 받은 Access Token을 Pinia 스토어에 저장
         authStore.setToken(response.data.accessToken);
 
@@ -74,6 +106,9 @@ const handleLogin = async () => {
 const togglePasswordVisibility = () => {
   passwordFieldType.value = passwordFieldType.value === 'password' ? 'text' : 'password';
 };
+function onCaptchaSuccess(token) {
+  window.token = token;
+ }
 </script>
 
 <style scoped>
@@ -242,5 +277,9 @@ h1 {
 }
 .dot.active {
   background-color: #fff;
+}
+
+.g-recaptcha {
+  width: 700px;
 }
 </style>
