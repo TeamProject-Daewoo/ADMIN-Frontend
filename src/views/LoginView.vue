@@ -47,7 +47,7 @@ import api from '@/api/axios'; // 우리가 만든 axios 인스턴스 임포트
 import { useAuthStore } from '@/api/auth';
 import { useUiStore } from '@/stores/commonUiStore';
 
-const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'SITE_KEY_HERE';
 const uiStore = useUiStore();
 const user_name = ref('');
 const password = ref('');
