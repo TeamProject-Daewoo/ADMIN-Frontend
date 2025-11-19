@@ -51,11 +51,12 @@ const router = createRouter({
         // 👇 /admin 접속 시 자동으로 /admin/list로 이동
         { path: '', redirect: { name: 'adminList' } }
       ]
-    },
+    }, { path: '/:pathMatch(.*)*', name: 'NotFound', component: errorPage, meta: { layout: 'EmptyLayout' } }
   ],
    scrollBehavior(to, from, savedPosition) {
     return { top: 0 }
-  }
+  },
+  
 })
 
 // 네비게이션 가드 (Navigation Guard)
